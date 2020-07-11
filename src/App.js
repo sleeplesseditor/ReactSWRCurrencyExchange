@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Fragment, useEffect, useState } from 'react';
+import './App.scss';
 import fetch from "unfetch";
+import moment from 'moment';
 import useSWR from "swr";
+import Header from './components/Header/Header';
+import CurrencyCard from './components/CurrencyCard/CurrencyCard';
 
 const API_URL = "https://api.exchangeratesapi.io";
 
@@ -10,6 +12,10 @@ const fetcher = async path => {
   const res = await fetch(API_URL + path);
   const json = await res.json();
   return json;
+};
+
+const formattedDate = (date) => {
+  return moment(date).format('dddd DD MMM yyyy')
 };
 
 function App() {
@@ -66,39 +72,32 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-      </header>
-      <div>
-        <div>
-          <input value={fromValue} onChange={handleFromValueChange} />
+    <Fragment>
+    <Header />
+    <div className="main-container">
+      <div className="card-container">
+        <div className="card-sub-container">
+        <CurrencyCard 
+          handleChange={handleFromCurrencyChange} 
+          inputChange={handleFromValueChange}
+          inputValue={fromValue}
+          objectKey={currencies} 
+          optionValue={'EUR'} 
+          value={fromCurrency} 
+        />
+        <CurrencyCard 
+          handleChange={handleToCurrencyChange}
+          inputChange={handleToValueChange}
+          inputValue={toValue}
+          objectKey={currencies} 
+          optionValue={'EUR'} 
+          value={toCurrency} 
+        />
         </div>
-        <div>
-          <input value={toValue} onChange={handleToValueChange} />
-        </div>
-        <div>
-          <select value={fromCurrency} onChange={handleFromCurrencyChange}>
-            <option value={'EUR'}>EUR</option>
-            {Object.keys(currencies.rates).map((rate, key) => (
-              <option key={key} value={rate}>
-                {rate}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <select value={toCurrency} onChange={handleToCurrencyChange}>
-            <option value={'EUR'}>EUR</option>
-            {Object.keys(currencies.rates).map((rate, key) => (
-              <option key={key} value={rate}>
-                {rate}
-              </option>
-            ))}
-          </select>
-        </div>
+        <p>Prices accurate as of {formattedDate(currencies.date)}</p>
       </div>
     </div>
+    </Fragment>
   );
 }
 
